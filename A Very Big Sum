@@ -14,7 +14,8 @@ vector<string> split(const string &);
  */
 
 long aVeryBigSum(vector<long> ar) {
-
+    long long int total =  accumulate(ar.begin(), ar.end(), 0ll);
+    return total;
 }
 
 int main()
