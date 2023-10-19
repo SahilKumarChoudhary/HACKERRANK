@@ -1,0 +1,80 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+typedef long long ll;
+
+ll MOD = 1000000007;
+ll powe(ll a, ll b) {
+    if (b == 0) return 1;
+    if (b % 2 == 0) return powe( (a*a)%MOD, b/2);
+    return (a*powe(a, b-1)) % MOD;
+}
+
+ll inv(ll a) {
+    return powe(a, MOD-2);
+}
+
+struct matrix {
+    vector<vector<ll>> M;
+    matrix I() const {
+        matrix ans;
+        ans.M = M;
+        for (int i = 0; i < M.size(); ++i)
+            for (int j = 0; j < M.size(); ++j)
+            ans.M[i][j] = !!(i==j);
+        return ans;
+    }
+    matrix operator*(const matrix& rhs) const {
+        matrix ans;
+        ans.M = M;
+        int N = M.size();
+        for (int i = 0; i < N; ++i) for (int j = 0; j < N; ++j) {
+            ans.M[i][j] = 0;
+            for (int k = 0; k < N; ++k)
+                ans.M[i][j] = (ans.M[i][j] + M[i][k]*rhs.M[k][j]) % MOD;
+        }
+        return ans;
+    }
+};
+
+matrix powm(const matrix& M, int b) {
+    if (b == 0) return M.I();
+    if (b % 2 == 0) return powm( M*M, b/2);
+    return M*powm(M, b-1);
+}
+
+int main() {
+    ll N, K;
+    cin >> N >> K;
+    vector<ll> F(N);
+    for (ll &x : F) cin >> x;
+    vector<ll> C(N);
+    for (ll &x : C) cin >> x;
+    matrix M;
+    M.M = vector<vector<ll>>(N, vector<ll>(N));
+    for (int i = 0; i < N-1; ++i)
+        for (int j = 0; j < N; ++j)
+            M.M[i][j] = !!((i+1) == j);
+    ll cinv = inv(C.back());
+    M.M[N-1][0] = cinv;
+    for (int j = 1; j < N; ++j)
+        M.M[N-1][j] = ((MOD - C[j-1])*cinv)%MOD;
+    auto M2 = powm(M, K-N+1);
+    vector<ll> ans(N);
+    for (int i = 0; i < N; ++i) {
+        ans[i] = 0;
+        for (int j = 0; j < N; ++j)
+            ans[i] = (ans[i] + F[j]*M2.M[i][j]) % MOD;
+    }
+    for (int i = 0; i < N; ++i) {
+        if (i) printf(" ");
+        printf("%lld", ans[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
