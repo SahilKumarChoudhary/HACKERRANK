@@ -1,0 +1,63 @@
+#include <cstdio>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <cassert>
+#include <string>
+#include <cstring>
+
+using namespace std;
+
+#define rep(i,a,b) for(int i = a; i < b; i++)
+#define S(x) scanf("%d",&x)
+#define P(x) printf("%d\n",x)
+
+typedef long long int LL;
+const int INF = 100000000;
+int C[10][20];
+int memo[1<<10][11][21];
+int n,k;
+
+int solve(int mask, int last, int idx) {
+    // printf("%d %d %d\n",mask,last,idx);
+    if(last == -1) {
+        int res = INF;
+        rep(i,0,k) res = min(res, C[i][idx] + solve(mask|(1<<i), i, idx+1));
+
+        return res;
+    }
+    if(idx == n) return 0;
+
+    int &res = memo[mask][last][idx];
+    if(memo[mask][last][idx] != INF) 
+        return memo[mask][last][idx];
+
+    res = C[last][idx] + min(res, solve(mask, last, idx+1));
+
+
+    rep(i,0,k) if(!((mask>>i)&1)) {
+        res = min(res, C[i][idx] + solve(mask|(1<<i) , i, idx+1) );
+    }
+
+    return res;
+}
+
+int main() {
+    scanf("%d%d",&n,&k);
+
+    rep(i,0,1<<k) rep(j,0,k) rep(l,0,n) memo[i][j][l] = INF;
+
+    rep(i,0,k) rep(j,0,n) S(C[i][j]);
+
+    printf("%d\n",solve(0, -1, 0));
+
+    return 0;
+
+}
+
+
+
+
